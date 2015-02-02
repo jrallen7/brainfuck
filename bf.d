@@ -2,90 +2,70 @@ import std.stdio;
 import std.file;
 
 
-class ubyteContainer
-{
+class ubyteContainer {
     protected ubyte[] dataArray;
     protected uint dataPtr;   
 
-    void decPtr()
-    {
+    void decPtr() {
         assert(--dataPtr >= 0);
     }
     
-    ubyte getData()
-    {
+    ubyte getData() {
         return dataArray[dataPtr];
     }
 }
 
-class bfCellArray : ubyteContainer
-{
-    this()
-    {
+class bfCellArray : ubyteContainer {
+    this() {
         dataArray = new ubyte[](2);
     }
     
-    void incPtr()
-    {
-        if (++dataPtr == dataArray.length)
-        {
+    void incPtr() {
+        if (++dataPtr == dataArray.length) {
             dataArray.length = (dataArray.length * 3) / 2;   
         }             
     }
     
-    void incData()
-    {
+    void incData() {
         ++dataArray[dataPtr];
     }      
 
-    void decData()
-    {
+    void decData() {
         --dataArray[dataPtr];
     }
     
-    void putData(in ubyte foo)
-    {
+    void putData(in ubyte foo) {
         dataArray[dataPtr] = foo;
     }
 }    
 
-class bfCommandArray : ubyteContainer
-{
-    this(in ubyte[] cmdData)
-    {
+class bfCommandArray : ubyteContainer {
+    this(in ubyte[] cmdData) {
         dataArray = cmdData.dup;
     }       
     
-    bool incPtr()
-    {
+    bool incPtr() {
         return (++dataPtr != dataArray.length);
     }        
 }            
 
-void main(char[][] args)
-{
-    if (2 == args.length)
-    {
+void main(char[][] args) {
+    if (2 == args.length) {
         runx(cast(immutable ubyte[])read(args[$-1]));       
-    }
-    else
-    {
+    } else {
         writefln("Need 1 command line argument, was supplied %s", args.length - 1);        
     }        
 }
 
-void runx(in ubyte[] cmds)
-{
+void runx(in ubyte[] cmds) {
     auto bfCommands = new bfCommandArray(cmds);
     auto bfCells = new bfCellArray();
     
-    for (;;)
-    {
+    for (;;) {
         //auto cmdcur = cast(char)bfCommands.getData();
         //writefln("%s", cmdcur);
 
-        switch (bfCommands.getData())
-        {
+        switch (bfCommands.getData()) {
             case cast(ubyte)'>':
                 bfCells.incPtr();
                 break;
@@ -114,14 +94,11 @@ void runx(in ubyte[] cmds)
                 break;
 
             case cast(ubyte)'[':
-                if (0 == bfCells.getData())
-                {
+                if (0 == bfCells.getData()) {
                     int foo = 1; 
-                    for (;;)
-                    {
+                    for (;;) {
                         bfCommands.incPtr();
-                        switch (bfCommands.getData())
-                        {
+                        switch (bfCommands.getData()) {
                             case cast(ubyte)'[':
                                 foo++;
                                 break;
@@ -130,21 +107,19 @@ void runx(in ubyte[] cmds)
                                 break;
                             default:
                         }                          
-                        if (0 == foo)
-                            break;                                                  
+                        if (0 == foo) {
+                            break;     
+                        }
                     }
                 }          
                 break;
 
             case cast(ubyte)']':
-                if (0 != bfCells.getData())
-                {
+                if (0 != bfCells.getData()) {
                     int foo = 1; 
-                    for (;;)
-                    {
+                    for (;;) {
                         bfCommands.decPtr();
-                        switch (bfCommands.getData())
-                        {
+                        switch (bfCommands.getData()) {
                             case cast(ubyte)']':
                                 foo++;
                                 break;    
@@ -153,8 +128,9 @@ void runx(in ubyte[] cmds)
                                 break;
                             default:    
                         }                            
-                        if (0 == foo)
-                            break;                                                  
+                        if (0 == foo) {
+                            break;     
+                        }
                     }
                 }          
                 break;
@@ -163,8 +139,7 @@ void runx(in ubyte[] cmds)
             
         }
         
-        if (!bfCommands.incPtr())
-        {
+        if (!bfCommands.incPtr()) {
             writeln("\n\nFinal State:");
             writefln("Cells: %s", bfCells.dataArray);
             writefln("Ptr: %s", bfCells.dataPtr);
